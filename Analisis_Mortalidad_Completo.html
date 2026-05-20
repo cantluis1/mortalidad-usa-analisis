@@ -1,0 +1,739 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Mortalidad en EE.UU. (1999-2017)</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.75;
+            font-size: 15px;
+        }
+
+        .page-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 260px;
+            background: #f7f7f7;
+            border-right: 1px solid #e0e0e0;
+            padding: 24px 0 40px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+
+        .sidebar h2 {
+            padding: 0 18px 14px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #888;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #333;
+            text-decoration: none;
+            padding: 6px 18px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .sidebar a:hover {
+            background: #ececec;
+            color: #1a4a7a;
+            border-left-color: #1a4a7a;
+        }
+
+        .sidebar a.active {
+            color: #1a4a7a;
+            border-left-color: #1a4a7a;
+            background: #e8f0fb;
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            margin-left: 260px;
+            padding: 60px 80px 80px 80px;
+            background: white;
+            width: calc(100% - 260px);
+            max-width: 960px;
+        }
+
+        /* ── HEADER (replaces colored banner with academic title block) ── */
+        .header {
+            background: white;
+            color: #1a1a1a;
+            padding: 0 0 40px 0;
+            margin: 0 0 40px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header h1 {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 30px;
+            font-weight: 400;
+            color: #1a3a5c;
+            line-height: 1.35;
+            margin-bottom: 18px;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .header-meta {
+            font-style: italic;
+            color: #555;
+            font-size: 14px;
+            line-height: 2;
+        }
+
+        /* ── HEADINGS ── */
+        h1, h2, h3 {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight: 400;
+            color: #1a3a5c;
+            margin-top: 42px;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-size: 24px;
+            border-bottom: 1px solid #d0d0d0;
+            padding-bottom: 8px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-top: 30px;
+            color: #1a3a5c;
+        }
+
+        h3 {
+            font-size: 15px;
+            color: #2c4a6a;
+        }
+
+        p {
+            margin-bottom: 14px;
+            text-align: justify;
+            font-weight: 300;
+        }
+
+        /* ── STATS BOX ── */
+        .stats-box {
+            background: #f4f8ff;
+            padding: 18px 22px;
+            border-left: 3px solid #1a4a7a;
+            margin: 20px 0;
+            border-radius: 2px;
+            font-size: 14px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 16px;
+            margin: 20px 0;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+        }
+
+        /* ── BOXES ── */
+        .box {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 18px 22px;
+            margin: 16px 0;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .box-info  { border-left: 3px solid #1a4a7a; background: #f4f8ff; }
+        .box-warning { border-left: 3px solid #c97d00; background: #fffbf0; }
+        .box-success { border-left: 3px solid #2a7a4a; background: #f2faf5; }
+        .box-danger  { border-left: 3px solid #a02020; background: #fff5f5; }
+        .box-ref     { border-left: 3px solid #5a5a9a; background: #f8f8ff; font-size: 13px; }
+
+        /* ── LISTS ── */
+        ol, ul {
+            margin: 14px 0 14px 28px;
+            font-weight: 300;
+        }
+
+        li { margin-bottom: 7px; }
+
+        /* ── TABLES ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        table th {
+            background: #1a3a5c;
+            color: white;
+            font-weight: 400;
+            font-size: 13px;
+            letter-spacing: 0.02em;
+        }
+
+        table tr:nth-child(even) { background: #f8f8f8; }
+        table tr:hover { background: #f0f5ff; }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1px 5px;
+            border-radius: 2px;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            font-style: italic;
+        }
+
+        a { color: #1a4a7a; }
+        a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main-content { margin-left: 0; width: 100%; padding: 24px; }
+            h1 { font-size: 20px; }
+            .header h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    
+    <!-- SIDEBAR CON ÍNDICE -->
+    <div class="sidebar">
+        <h2>Contenido</h2>
+        <ul>
+            <li><a href="#introduccion" class="sidebar-link">1. Introducción</a>
+                <ul style="margin-left: 15px;">
+                    <li><a href="#contexto-problema" class="sidebar-link">1.1 Contexto del Problema</a></li>
+                    <li><a href="#contexto-dataset" class="sidebar-link">1.2 Contexto del Dataset</a></li>
+                    <li><a href="#pregunta-central" class="sidebar-link">1.3 Pregunta Central</a></li>
+                    <li><a href="#objetivos" class="sidebar-link">1.4 Objetivos</a></li>
+                </ul>
+            </li>
+            <li><a href="#marco-teorico" class="sidebar-link">2. Marco Teórico</a></li>
+            <li><a href="#metodologia" class="sidebar-link">3. Metodología</a></li>
+            <li><a href="#evolucion-tasa" class="sidebar-link">4. Evolución de Tasa</a></li>
+            <li><a href="#analisis-ranking" class="sidebar-link">5. Análisis de Ranking</a></li>
+            <li><a href="#muertes-desesperacion" class="sidebar-link">6. Muertes por Desesperación</a></li>
+            <li><a href="#distribucion-causas" class="sidebar-link">7. Distribución Causas</a></li>
+            <li><a href="#series-tiempo" class="sidebar-link">8. Series de Tiempo</a></li>
+            <li><a href="#west-virginia" class="sidebar-link">9. Caso: West Virginia</a></li>
+            <li><a href="#clustering" class="sidebar-link">10. Clustering</a></li>
+            <li><a href="#arima" class="sidebar-link">11. Modelo ARIMA</a></li>
+            <li><a href="#modelos-adicionales" class="sidebar-link">12. Modelos Adicionales</a></li>
+            <li><a href="#ets" class="sidebar-link">13. Modelo ETS</a></li>
+            <li><a href="#regresion" class="sidebar-link">14. Regresión Lineal</a></li>
+            <li><a href="#comparacion-modelos" class="sidebar-link">15. Comparación</a></li>
+            <li><a href="#justificacion" class="sidebar-link">16. Justificación</a></li>
+            <li><a href="#insights" class="sidebar-link">17. Insights Clave</a></li>
+            <li><a href="#limitaciones" class="sidebar-link">18. Limitaciones</a></li>
+            <li><a href="#conclusiones" class="sidebar-link">19. Conclusiones</a></li>
+            <li><a href="#referencias" class="sidebar-link">20. Referencias</a></li>
+        </ul>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+    
+        <!-- ENCABEZADO -->
+        <div class="header">
+            <h1>Análisis Temporal y Demográfico de las Principales Causas de Muerte en Estados Unidos</h1>
+            <div class="header-meta">
+                <div>Valerie M y Luis C</div>
+                <div>2025-05-06</div>
+            </div>
+        </div>
+
+        <!-- ===== 1. INTRODUCCIÓN ===== -->
+        <h1 id="introduccion">1. Introducción</h1>
+        
+        <h2 id="contexto-problema">1.1. Contexto del Problema</h2>
+        <p>
+            Las enfermedades crónicas no transmisibles provocan la mayoría de los fallecimientos 
+            en Estados Unidos. El cáncer, enfermedades cardíacas, diabetes, enfermedades 
+            cerebrovasculares, Alzheimer y enfermedades respiratorias crónicas han sido motivos 
+            comunes de muerte. Además, existen causas externas como lesiones no intencionales, 
+            accidentes y suicidio, conectadas con la manera en que vivimos y las circunstancias 
+            que nos envuelven.
+        </p>
+        
+        <h2 id="contexto-dataset">1.2. Contexto del Dataset</h2>
+        <p>
+            El dataset utilizado en este informe es <strong>"NCHS - Leading Causes of Death: United States"</strong> 
+            del <strong>Centers for Disease Control and Prevention (CDC)</strong>. A través del 
+            <strong>National Center for Health Statistics (NCHS)</strong> y 
+            <strong>National Vital Statistics System (NVSS)</strong>, los CDC recolectan todos los 
+            certificados de defunción emitidos en los 50 estados y el District of Columbia, garantizando 
+            que los datos provienen del registro universal de todos los fallecimientos.
+        </p>
+        
+        <h2 id="pregunta-central">1.3. Pregunta Central de Investigación</h2>
+        <div class="box box-info">
+            <p style="font-weight: bold; color: #2980b9;">
+                ¿Cómo han cambiado las principales causas de muerte en Estados Unidos a lo largo 
+                del tiempo (1999-2017) y qué diferencias persistentes se observan entre los distintos estados?
+            </p>
+        </div>
+        
+        <p>Esta pregunta abarca tres dimensiones fundamentales:</p>
+        <ol>
+            <li><strong>Dimensión temporal:</strong> Evolución de enfermedades crónicas y causas externas.</li>
+            <li><strong>Dimensión geográfica:</strong> Variación de mortalidad entre estados y desigualdades territoriales.</li>
+            <li><strong>Dimensión de ranking:</strong> Cambios en la posición de las causas de muerte a lo largo del tiempo.</li>
+        </ol>
+        
+        <h2 id="objetivos">1.4. Objetivos del Estudio</h2>
+        
+        <h3>1.4.1 Objetivo General</h3>
+        <p>
+            Analizar la evolución de la mortalidad en Estados Unidos de 1999 hasta 2017, identificando 
+            sus principales causas y distribución geográfica, mediante análisis exploratorio de datos, 
+            visualizaciones interactivas y modelos predictivos.
+        </p>
+        
+        <h3>1.4.2 Objetivos Específicos</h3>
+        <ol>
+            <li>Describir el panorama general de mortalidad en EE.UU. durante 1999-2017.</li>
+            <li>Identificar patrones temporales en las causas principales de muerte.</li>
+            <li>Analizar disparidades geográficas entre estados.</li>
+            <li>Visualizar cambios en el ranking de causas de muerte.</li>
+            <li>Formular hipótesis e insights basados en patrones encontrados.</li>
+        </ol>
+
+        <!-- ===== 2. MARCO TEÓRICO ===== -->
+        <h1 id="marco-teorico">2. Marco Teórico</h1>
+        <p>
+            La mortalidad en Estados Unidos es resultado de complejas interacciones entre factores 
+            biológicos, sociales, económicos y geográficos. La literatura epidemiológica documenta 
+            de manera consistente que:
+        </p>
+        <ol>
+            <li><strong>Enfermedades crónicas dominan:</strong> Las muertes por enfermedades del corazón 
+                y cáncer representan más del 50% de la mortalidad total.</li>
+            <li><strong>Disparidades geográficas persistentes:</strong> Existen brechas significativas 
+                entre regiones, especialmente entre el sur rural y el resto del país.</li>
+            <li><strong>Emergencia de "muertes por desesperación":</strong> Suicidios y muertes por 
+                accidentes/sobredosis han aumentado sustancialmente en las últimas décadas.</li>
+        </ol>
+
+        <!-- ===== 3. METODOLOGÍA ===== -->
+        <h1 id="metodologia">3. Metodología</h1>
+        <p>
+            Este análisis utiliza una combinación de técnicas estadísticas y de machine learning:
+        </p>
+        <ol>
+            <li><strong>Estadística Descriptiva:</strong> Análisis de tasas, medias y desviaciones.</li>
+            <li><strong>Análisis de Series Temporales:</strong> Visualización de tendencias anuales.</li>
+            <li><strong>Clustering (K-Means):</strong> Agrupación de estados por perfil de mortalidad.</li>
+            <li><strong>Modelos Predictivos:</strong> ARIMA, ETS y Regresión Lineal para proyecciones.</li>
+            <li><strong>Análisis Comparativo:</strong> Validación cruzada de modelos.</li>
+        </ol>
+        <p><strong>Periodo de análisis:</strong> 1999-2017 (19 años, pre-pandemia)</p>
+
+        <!-- ===== 4. EVOLUCIÓN DE LA TASA AJUSTADA ===== -->
+        <h1 id="evolucion-tasa">4. Evolución de la Tasa Ajustada de Mortalidad Anual</h1>
+        
+        <div class="stats-box">
+            <p><strong>Tasa Inicial (1999):</strong> 143.1 por 100,000 habitantes</p>
+            <p><strong>Tasa Final (2017):</strong> 115.6 por 100,000 habitantes</p>
+            <p><strong>Cambio:</strong> -27.5 (-19.2%)</p>
+            <p><strong>Total de Muertes:</strong> 84,009,152</p>
+        </div>
+        
+        <div class="chart-container">
+            <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="fig1" class="plotly-graph-div" style="height:450px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("fig1")) {                    Plotly.newPlot(                        "fig1",                        [{"hovertemplate":"A\u00f1o: %{x}\u003cbr\u003eTasa: %{y:.1f}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#375a7f","width":2.5},"marker":{"size":6},"mode":"lines+markers","name":"Tasa ajustada","x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"y":[143.06363636363636,141.54545454545453,139.5,138.9090909090909,136.57272727272726,131.4818181818182,131.25454545454545,126.96363636363635,124.14545454545454,123.78181818181817,119.4909090909091,118.78181818181817,117.39090909090909,115.68181818181819,115.36363636363636,114.35454545454546,115.91818181818181,115.16363636363636,115.55454545454545],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"font":{"size":11},"title":{"text":"\u003cb\u003eEvoluci\u00f3n de la Tasa Ajustada de Mortalidad Nacional (1999\u20132017)\u003c\u002fb\u003e"},"xaxis":{"title":{"text":"A\u00f1o"}},"yaxis":{"title":{"text":"Tasa por 100,000 hab."}},"height":450,"hovermode":"x unified"},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+        </div>
+
+        <!-- ===== 5. ANÁLISIS DE RANKING ===== -->
+        <h1 id="analisis-ranking">5. Análisis de Ranking: Cambios en la Posición de las Causas de Muerte</h1>
+        <p>
+            El ranking de causas de muerte ha experimentado cambios notables. Mientras que las 
+            enfermedades crónicas mantienen sus posiciones altas, nuevas causas como los accidentes 
+            no intencionales han ganado importancia.
+        </p>
+        
+        <div class="chart-container">
+            <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="fig3" class="plotly-graph-div" style="height:550px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("fig3")) {                    Plotly.newPlot(                        "fig3",                        [{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(102,194,165)","width":2},"marker":{"color":"rgb(102,194,165)","size":10},"mode":"lines+markers+text","name":"All causes","text":["#1 All causes","#1 All causes"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[1,1],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(252,141,98)","width":2},"marker":{"color":"rgb(252,141,98)","size":10},"mode":"lines+markers+text","name":"Heart disease","text":["#2 Heart disease","#2 Heart disease"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[2,2],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(141,160,203)","width":2},"marker":{"color":"rgb(141,160,203)","size":10},"mode":"lines+markers+text","name":"Cancer","text":["#3 Cancer","#3 Cancer"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[3,3],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(231,138,195)","width":2},"marker":{"color":"rgb(231,138,195)","size":10},"mode":"lines+markers+text","name":"Stroke","text":["#4 Stroke","#6 Stroke"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[4,6],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(166,216,84)","width":2},"marker":{"color":"rgb(166,216,84)","size":10},"mode":"lines+markers+text","name":"CLRD","text":["#5 CLRD","#5 CLRD"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[5,5],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(255,217,47)","width":2},"marker":{"color":"rgb(255,217,47)","size":10},"mode":"lines+markers+text","name":"Unintentional injuri","text":["#6 Unintentional injuri","#4 Unintentional injuri"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[6,4],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(229,196,148)","width":2},"marker":{"color":"rgb(229,196,148)","size":10},"mode":"lines+markers+text","name":"Diabetes","text":["#7 Diabetes","#8 Diabetes"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[7,8],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(179,179,179)","width":2},"marker":{"color":"rgb(179,179,179)","size":10},"mode":"lines+markers+text","name":"Influenza and pneumo","text":["#8 Influenza and pneumo","#10 Influenza and pneumo"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[8,10],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(102,194,165)","width":2},"marker":{"color":"rgb(102,194,165)","size":10},"mode":"lines+markers+text","name":"Alzheimer's disease","text":["#9 Alzheimer's disease","#7 Alzheimer's disease"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[9,7],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(252,141,98)","width":2},"marker":{"color":"rgb(252,141,98)","size":10},"mode":"lines+markers+text","name":"Kidney disease","text":["#10 Kidney disease","#11 Kidney disease"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[10,11],"type":"scatter"},{"hovertemplate":"\u003cb\u003e%{name}\u003c\u002fb\u003e\u003cbr\u003e%{x}: Rank %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(141,160,203)","width":2},"marker":{"color":"rgb(141,160,203)","size":10},"mode":"lines+markers+text","name":"Suicide","text":["#11 Suicide","#9 Suicide"],"textfont":{"size":9},"textposition":["middle left","middle right"],"x":[1999,2017],"y":[11,9],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"tickvals":[1999,2017]},"yaxis":{"title":{"text":"Ranking (1=mayor tasa)"},"autorange":"reversed"},"title":{"text":"\u003cb\u003eCambios en el Ranking de Causas de Muerte (1999 vs 2017)\u003c\u002fb\u003e"},"height":550,"hovermode":"closest","showlegend":false},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+        </div>
+
+        <!-- ===== 6. MUERTES POR DESESPERACIÓN ===== -->
+        <h1 id="muertes-desesperacion">6. Análisis Específico: La Crisis de las "Muertes por Desesperación"</h1>
+        <p>
+            Las "muertes por desesperación" (suicidios, accidentes y trastornos por drogas) representan 
+            una de las tendencias más alarmantes en la mortalidad estadounidense. Este fenómeno tiene 
+            raíces en la desindustrialización, la pobreza y la falta de acceso a servicios de salud mental.
+        </p>
+
+        <!-- ===== 7. DISTRIBUCIÓN DE CAUSAS ===== -->
+        <h1 id="distribucion-causas">7. Distribución por Causas Principales (Top 10)</h1>
+        
+        <div class="chart-container">
+            <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="fig4" class="plotly-graph-div" style="height:400px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("fig4")) {                    Plotly.newPlot(                        "fig4",                        [{"alignmentgroup":"True","hovertemplate":"Tasa por 100,000=%{x}\u003cbr\u003eCausa=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"textposition":"auto","x":[792.2450584484591,197.93436532507738,178.6156862745098,45.89979360165119,44.637151702786376,43.487306501547984,25.031991744066048,23.402889576883386,18.20546955624355,14.069762641898865],"xaxis":"x","y":["All causes","Heart disease","Cancer","Stroke","CLRD","Unintentional injuries","Alzheimer's disease","Diabetes","Influenza and pneumonia","Kidney disease"],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Tasa por 100,000"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Causa"},"categoryorder":"total ascending"},"legend":{"tracegroupgap":0},"title":{"text":"\u003cb\u003eTop 10 Causas de Muerte (Promedio 1999-2017)\u003c\u002fb\u003e"},"barmode":"relative","height":400},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+        </div>
+
+        <!-- ===== 8. SERIES DE TIEMPO ===== -->
+        <h1 id="series-tiempo">8. Series de Tiempo por Causa</h1>
+        
+        <div class="chart-container">
+            <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="fig2" class="plotly-graph-div" style="height:480px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("fig2")) {                    Plotly.newPlot(                        "fig2",                        [{"hovertemplate":"Causa=All causes\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"All causes","line":{"color":"#636efa","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"All causes","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[861.0688888888889,858.5782608695652,849.4,847.6782608695652,841.0999999999999,821.2705882352942,815.1270833333333,804.8901960784314,789.6274509803922,790.4196078431373,765.1372549019608,764.4529411764705,760.1823529411765,751.3725490196078,751.2470588235294,747.1470588235294,757.0823529411764,751.9941176470587,755.6960784313726],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=Alzheimer's disease\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Alzheimer's disease","line":{"color":"#EF553B","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Alzheimer's disease","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[17.50392156862745,19.51372549019608,20.801960784313728,22.629411764705882,23.468627450980392,23.817647058823532,25.225490196078432,24.929411764705883,25.358823529411765,26.92549019607843,25.154901960784315,26.158823529411762,25.858823529411765,24.927450980392155,24.241176470588233,26.137254901960784,29.95098039215686,30.92549019607843,32.07843137254902],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=CLRD\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"CLRD","line":{"color":"#00cc96","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"CLRD","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[47.049019607843135,45.811764705882354,45.509803921568626,45.8156862745098,45.43333333333333,43.227450980392156,45.976470588235294,42.88235294117647,43.101960784313725,46.90980392156863,44.982352941176465,44.35098039215686,44.88823529411765,43.58235294117647,44.24313725490196,43.01568627450981,44.37058823529412,43.16274509803922,43.7921568627451],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=Cancer\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Cancer","line":{"color":"#ab63fa","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Cancer","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[201.46274509803922,200.18823529411765,197.75686274509803,195.00980392156862,191.9843137254902,187.68039215686275,186.19411764705882,183.02745098039216,180.9745098039216,177.86078431372547,174.54117647058825,174.5470588235294,171.11764705882354,167.79019607843136,165.2705882352941,163.81176470588235,161.3235294117647,158.15098039215687,155.00588235294117],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=Diabetes\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Diabetes","line":{"color":"#FFA15A","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Diabetes","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[25.56470588235294,25.590196078431372,25.847058823529412,26.178431372549017,26.084313725490194,25.219607843137254,25.370588235294118,24.058823529411764,23.476470588235294,22.529411764705884,21.547058823529415,21.347058823529412,22.2,21.47254901960784,21.401960784313726,21.1843137254902,22.084313725490194,21.505882352941175,21.992156862745095],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=Heart disease\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Heart disease","line":{"color":"#19d3f3","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Heart disease","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[256.06666666666666,249.5921568627451,241.87058823529412,237.0254901960784,230.19411764705882,215.50196078431372,211.5254901960784,201.2980392156863,192.36666666666667,188.51960784313727,180.11568627450978,176.78039215686272,171.62941176470588,169.63137254901963,169.0607843137255,167.7549019607843,168.85686274509806,166.97058823529412,165.9921568627451],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=Influenza and pneumonia\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Influenza and pneumonia","line":{"color":"#FF6692","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Influenza and pneumonia","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[24.294117647058822,23.24705882352941,21.51764705882353,22.998039215686276,22.7078431372549,19.772549019607844,20.82549019607843,18.109803921568627,16.737254901960785,17.662745098039213,16.45294117647059,15.188235294117648,15.839215686274509,14.458823529411765,16.1156862745098,15.46078431372549,15.888235294117646,13.729411764705883,14.898039215686273],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=Kidney disease\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Kidney disease","line":{"color":"#B6E880","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Kidney disease","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[13.031372549019608,13.752941176470587,14.150980392156864,14.36862745098039,14.727450980392158,14.586274509803921,14.650980392156864,14.898039215686273,14.860784313725489,15.380392156862746,15.198039215686276,15.425490196078432,13.605882352941176,13.068627450980392,13.27450980392157,13.158823529411766,13.331372549019607,13.058823529411764,12.79607843137255],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=Stroke\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Stroke","line":{"color":"#FF97FF","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Stroke","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[62.858823529411765,61.58627450980392,59.20980392156862,58.294117647058826,55.643137254901966,51.56078431372549,48.794117647058826,45.42941176470588,43.898039215686275,42.73137254901961,40.470588235294116,39.911764705882355,38.6078431372549,37.568627450980394,36.64705882352941,36.794117647058826,37.498039215686276,37.16274509803922,37.42941176470588],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=Suicide\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Suicide","line":{"color":"#FECB52","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Suicide","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[11.762745098039215,11.707843137254903,12.127450980392156,12.339215686274509,12.215686274509803,12.372549019607844,12.307843137254903,12.409803921568628,12.658823529411766,13.141176470588237,13.149019607843139,13.823529411764707,13.970588235294118,14.44705882352941,14.437254901960783,14.905882352941177,15.423529411764706,15.584313725490196,16.507843137254902],"yaxis":"y","type":"scatter"},{"hovertemplate":"Causa=Unintentional injuries\u003cbr\u003eA\u00f1o=%{x}\u003cbr\u003eTasa por 100,000=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Unintentional injuries","line":{"color":"#636efa","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Unintentional injuries","orientation":"v","showlegend":true,"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"xaxis":"x","y":[38.294117647058826,38.44705882352941,39.25294117647059,40.423529411764704,41.19019607843137,41.498039215686276,42.83137254901961,43.79607843137255,43.75098039215687,43.28627450980392,41.160784313725486,42.127450980392155,43.3078431372549,43.403921568627446,43.805882352941175,45.12352941176471,48.1764705882353,52.36666666666666,54.01568627450981],"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"A\u00f1o"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Tasa por 100,000"}},"legend":{"title":{"text":"Causa"},"tracegroupgap":0,"orientation":"v","x":1.02,"y":1},"title":{"text":"\u003cb\u003eTendencias de Mortalidad por Causa (1999\u20132017)\u003c\u002fb\u003e"},"font":{"size":10},"height":480,"hovermode":"x unified"},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+        </div>
+        
+        <div class="chart-container">
+            <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="fig5" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("fig5")) {                    Plotly.newPlot(                        "fig5",                        [{"colorscale":[[0.0,"rgb(255,255,204)"],[0.125,"rgb(255,237,160)"],[0.25,"rgb(254,217,118)"],[0.375,"rgb(254,178,76)"],[0.5,"rgb(253,141,60)"],[0.625,"rgb(252,78,42)"],[0.75,"rgb(227,26,28)"],[0.875,"rgb(189,0,38)"],[1.0,"rgb(128,0,38)"]],"x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"y":["All causes","Alzheimer's disease","CLRD","Cancer","Diabetes","Heart disease","Influenza and pneumonia","Kidney disease","Stroke","Suicide","Unintentional injuries"],"z":[[2210724,2261382,2274175,2279933,2309058,2397615,2327376,2426264,2423712,2471984,2437163,2468435,2515458,2543279,2596993,2626418,2712630,2744248,2813503],[44536,49558,53852,58866,63457,65965,71599,72432,74632,82435,79003,83494,84974,83637,84767,93541,110561,116103,121404],[124181,122009,123013,124816,126382,121987,130933,124583,127924,141090,137353,138080,142943,143489,149205,147101,155041,154596,160201],[549838,553091,553768,557271,556902,553888,559312,559888,562875,565469,567628,574743,576691,582623,584881,591700,595930,598038,599108],[68399,69301,71372,73249,74219,73138,75119,72449,71382,70553,68705,69071,73831,73932,75578,76488,79535,80058,83564],[725192,710760,700142,696947,685089,652486,652091,631636,616067,616828,599413,597689,596577,599711,611105,614348,633842,635260,647457],[63730,65313,62034,65681,65163,59664,63001,56326,52717,56284,53692,50097,53826,50636,56979,55227,57062,51537,55672],[35525,37251,39480,40974,42453,42480,43901,45344,46448,48237,48935,50476,45591,45622,47112,48146,49959,50046,50633],[167366,167661,163538,162672,157689,150074,143579,137119,135952,134148,128842,129476,128932,128546,128978,133103,140323,142142,146383],[29199,29350,30622,31655,31484,32439,32637,33300,34598,36035,36909,38364,39518,40600,41149,42826,44193,44965,47173],[97860,97900,101537,106742,109277,112012,117809,121599,123706,121902,118021,120859,126438,127792,130557,135928,146571,161374,169936]],"type":"heatmap"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmapgl":[{"type":"heatmapgl","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"title":{"text":"\u003cb\u003eHeatmap: N\u00famero de Muertes por Causa y A\u00f1o\u003c\u002fb\u003e"},"xaxis":{"title":{"text":"A\u00f1o"}},"yaxis":{"title":{"text":"Causa"}},"height":500},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+        </div>
+
+        <!-- ===== 9. WEST VIRGINIA ===== -->
+        <h1 id="west-virginia">9. Caso de Estudio: West Virginia</h1>
+        <p>
+            West Virginia presenta las tasas de mortalidad más altas del país, especialmente 
+            en causas relacionadas con accidentes no intencionales (vinculados a la crisis de opioides). 
+            Este estado sirve como paradigma de las desigualdades geográficas persistentes.
+        </p>
+        
+        <div class="stats-box">
+            <p><strong>Estado con mayor mortalidad:</strong> Oklahoma</p>
+            <p><strong>Tasa promedio:</strong> 151.8 por 100,000</p>
+            <p><strong>Estado con menor mortalidad:</strong> Hawaii</p>
+            <p><strong>Tasa promedio:</strong> 99.2 por 100,000</p>
+            <p><strong>Brecha:</strong> 52.6 (53% diferencia)</p>
+        </div>
+
+        <!-- ===== 10. CLUSTERING ===== -->
+        <h1 id="clustering">10. Clustering de Estados por Perfil de Mortalidad</h1>
+        <p>
+            El análisis de clustering identifica grupos de estados con perfiles similares de mortalidad. 
+            Utilizamos K-Means con k=3 y PCA para visualización bidimensional.
+        </p>
+        
+        <div class="chart-container">
+            <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="clustering" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("clustering")) {                    Plotly.newPlot(                        "clustering",                        [{"hovertemplate":"PC1=%{x}\u003cbr\u003ePC2=%{y}\u003cbr\u003eEstado=%{text}\u003cbr\u003eCluster=%{marker.color}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":[1,0,0,1,2,0,2,2,2,2,1,2,0,2,1,0,0,1,1,0,2,2,2,2,1,1,0,0,0,0,2,0,2,1,0,1,1,0,2,2,1,0,1,0,0,0,2,0,1,2,0],"coloraxis":"coloraxis","symbol":"circle","size":8},"mode":"markers+text","name":"","orientation":"v","showlegend":false,"text":["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Columbia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"],"x":[4.057987214507483,-0.5833306698533033,-1.6814784190099685,3.9327058883456707,-2.227065964653942,-2.1636725017120915,-3.3640846149729087,-0.35326350083364283,-0.5596718210717465,-2.491040635387418,1.7021471203781722,-4.5757865132610505,-0.7164309030104817,-0.33632733988467206,1.8729530082380934,-1.204282136295889,0.22056834509208864,4.513895202925905,4.043715418221051,0.006742321012505798,-1.2840967398511223,-2.4465725127060876,0.4614863274918858,-3.0640726092028516,5.187693350374788,1.8673305393399795,-0.1910485095869677,-1.3586097719534145,0.547636995357126,-1.6280880956791322,-2.2418567401372127,-0.21433379115951917,-3.1592891053647802,1.5457656248496368,-1.375699974357858,1.477130970229964,4.068688913817294,-0.9565763438007967,-0.05029583492750977,-2.0511822466542453,2.3455461391933463,-0.6333398821986435,3.77204483460407,0.20282354114652168,-1.8471838719731775,-1.6995976902043848,-0.3006165966005244,-1.3051067943000834,4.773719066286576,-1.1170671644108245,0.5804884736040848],"xaxis":"x","y":[-0.604819278915739,2.6038788744577355,2.2266066781347553,-0.5182877710808611,-0.4394068686251364,2.3888485988406916,-1.4426731932063515,-1.06212002806831,-3.0357344350487665,0.39429651399873844,-0.8768518501362133,-1.2112261470979402,1.9609745048311675,-2.032927525476481,-0.46863108717381957,0.3059484142357398,0.07265649752610376,-0.15106576402817457,-1.1655272209794911,0.46190863444596547,-2.184819752412123,-2.1850798694851137,-0.9866636852384587,0.3620648103593309,-1.1730174929678707,-0.43884610369733706,2.705438208925661,0.06697911556345162,0.07233972539192848,0.3481056012923447,-2.44473028410638,2.5601488871192726,-3.286581566859302,-0.18115494395034465,1.2596002087841667,-0.42088370743390474,0.570695736024644,1.8406048292629391,-1.2148759314831783,-1.1601861897687304,0.349083931861722,1.501096689619621,0.2700765985077283,-0.35495829386132144,1.2690492793265635,1.5696605659536884,-1.148663607609719,2.0371970038640232,0.39943478666212984,-0.09565509650676123,2.688693000227717],"yaxis":"y","type":"scatter","textposition":"top center"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"PC1"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"PC2"}},"coloraxis":{"colorbar":{"title":{"text":"Cluster"}},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"legend":{"tracegroupgap":0},"title":{"text":"\u003cb\u003eClustering de Estados (PCA)\u003c\u002fb\u003e"},"font":{"size":10},"height":500},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+        </div>
+
+        <!-- ===== 11. MODELO ARIMA ===== -->
+        <h1 id="arima">11. Modelo 1 - ARIMA</h1>
+        <p>
+            El modelo ARIMA (AutoRegressive Integrated Moving Average) captura patrones de autocorrelación 
+            y tendencias en series temporales. Utilizamos datos de West Virginia (lesiones no intencionales) 
+            como caso de estudio predictivo.
+        </p>
+        
+        <h3>Características:</h3>
+        <ul>
+            <li>Orden: (1, 1, 1) - un componente AR, una diferencia, un componente MA</li>
+            <li>Horizonte: Proyecciones 2018-2022</li>
+            <li>Fortaleza: Manejo excelente de tendencias y patrones temporales</li>
+        </ul>
+        
+        <div class="chart-container">
+            <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="arima" class="plotly-graph-div" style="height:400px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("arima")) {                    Plotly.newPlot(                        "arima",                        [{"line":{"color":"#375a7f","width":2},"mode":"lines","name":"Observado","x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"y":[42.0,43.2,44.7,50.9,53.7,59.0,49.6,62.4,65.8,65.5,48.2,63.7,74.8,70.8,71.7,71.0,77.9,89.7,100.3],"type":"scatter"},{"line":{"color":"#e74c3c","dash":"dash","width":2},"mode":"lines","name":"Proyectado","x":[19,20,21,22,23],"y":[102.39655307636846,104.49308751693772,106.58960332187343,108.68610049134124,110.78257902550679],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"\u003cb\u003eModelo ARIMA: West Virginia (Lesiones no intencionales)\u003c\u002fb\u003e"},"xaxis":{"title":{"text":"A\u00f1o"}},"yaxis":{"title":{"text":"Tasa por 100,000"}},"height":400},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+        </div>
+
+        <!-- ===== 12. MODELOS ADICIONALES ===== -->
+        <h1 id="modelos-adicionales">12. Modelos Adicionales</h1>
+        <p>
+            Para validar la robustez de nuestras proyecciones, comparamos tres enfoques diferentes:
+        </p>
+        <ol>
+            <li><strong>ARIMA:</strong> Captura automáticamente patrones de autocorrelación</li>
+            <li><strong>ETS:</strong> Suavización exponencial, ideal para series sin estacionalidad clara</li>
+            <li><strong>Regresión Lineal:</strong> Modelo simple, interpretable y con bajo riesgo de sobreajuste</li>
+        </ol>
+
+        <!-- ===== 13. MODELO ETS ===== -->
+        <h1 id="ets">13. Modelo 2 - ETS (Error, Trend, Seasonality)</h1>
+        <p>
+            El modelo ETS utiliza suavización exponencial para capturar patrones. En nuestro caso, 
+            dado que los datos no presentan estacionalidad clara, usamos suavización simple.
+        </p>
+        
+        <div class="chart-container">
+            <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="ets" class="plotly-graph-div" style="height:400px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("ets")) {                    Plotly.newPlot(                        "ets",                        [{"line":{"color":"#375a7f","width":2},"mode":"lines","name":"Original","x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"y":[42.0,43.2,44.7,50.9,53.7,59.0,49.6,62.4,65.8,65.5,48.2,63.7,74.8,70.8,71.7,71.0,77.9,89.7,100.3],"type":"scatter"},{"line":{"color":"#27ae60","width":2},"mode":"lines","name":"Suavizado","x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"y":[42.0,42.36,43.062,45.413399999999996,47.899379999999994,51.22956599999999,50.74069619999999,54.238487339999985,57.70694113799999,60.04485879659999,56.49140115761999,58.65398081033399,63.49778656723379,65.68845059706365,67.49191541794455,68.54434079256119,71.35103855479282,76.85572698835497,83.88900889184848],"type":"scatter"},{"line":{"color":"#e74c3c","dash":"dash","width":2},"mode":"lines","name":"Proyectado","x":[2018,2019,2020,2021,2022],"y":[84.2591816236113,84.6293543553741,84.99952708713693,85.36969981889975,85.73987255066255],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"\u003cb\u003eModelo ETS (Suavizaci\u00f3n Exponencial): West Virginia\u003c\u002fb\u003e"},"xaxis":{"title":{"text":"A\u00f1o"}},"yaxis":{"title":{"text":"Tasa por 100,000"}},"height":400},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+        </div>
+
+        <!-- ===== 14. REGRESIÓN LINEAL ===== -->
+        <h1 id="regresion">14. Modelo 3 - Regresión Lineal con Tendencia Temporal</h1>
+        <p>
+            El modelo de regresión lineal es el más simple pero también el más interpretable. 
+            Asume una relación lineal entre tiempo y tasa de mortalidad.
+        </p>
+        
+        <div class="stats-box">
+            <p><strong>R² Score:</strong> 0.818</p>
+            <p><strong>RMSE:</strong> 6.558</p>
+        </div>
+        
+        <div class="chart-container">
+            <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="regresion" class="plotly-graph-div" style="height:400px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("regresion")) {                    Plotly.newPlot(                        "regresion",                        [{"marker":{"color":"#375a7f","size":8},"mode":"markers","name":"Observado","x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"y":[42.0,43.2,44.7,50.9,53.7,59.0,49.6,62.4,65.8,65.5,48.2,63.7,74.8,70.8,71.7,71.0,77.9,89.7,100.3],"type":"scatter"},{"line":{"color":"#27ae60","width":2},"mode":"lines","name":"Ajustado","x":[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017],"y":[40.5605263157895,43.100000000000364,45.639473684210316,48.17894736842118,50.71842105263204,53.25789473684199,55.79736842105285,58.336842105262804,60.876315789473665,63.41578947368453,65.95526315789448,68.49473684210534,71.0342105263162,73.57368421052615,76.11315789473701,78.65263157894788,81.19210526315783,83.73157894736869,86.27105263157864],"type":"scatter"},{"line":{"color":"#e74c3c","dash":"dash","width":2},"mode":"lines","name":"Proyectado","x":[2018,2019,2020,2021,2022],"y":[88.8105263157895,91.35000000000036,93.88947368421032,96.42894736842118,98.96842105263204],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"\u003cb\u003eModelo de Regresi\u00f3n Lineal: West Virginia\u003c\u002fb\u003e"},"xaxis":{"title":{"text":"A\u00f1o"}},"yaxis":{"title":{"text":"Tasa por 100,000"}},"height":400},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+        </div>
+
+        <!-- ===== 15. COMPARACIÓN DE MODELOS ===== -->
+        <h1 id="comparacion-modelos">15. Comparación de Modelos</h1>
+        <p>
+            Una comparación rigurosa de los tres modelos considerando múltiples criterios:
+        </p>
+        
+        <div class="chart-container">
+            {tabla_comparacion}
+        </div>
+        
+        <p style="margin-top: 20px;">
+            <strong>Conclusión:</strong> El modelo ARIMA presenta el mejor balance entre complejidad 
+            y capacidad predictiva para series de tiempo de mortalidad. Sin embargo, la regresión lineal 
+            ofrece proyecciones más conservadoras y robustas.
+        </p>
+
+        <!-- ===== 16. JUSTIFICACIÓN DEL MODELO ===== -->
+        <h1 id="justificacion">16. Justificación del Modelo Seleccionado</h1>
+        <p>
+            Se selecciona el <span class="highlight">modelo ARIMA</span> como el modelo principal por 
+            las siguientes razones:
+        </p>
+        <ol>
+            <li><strong>Captura de autocorrelación:</strong> El modelo detecta patrones autorrepetitivos 
+                en los datos de mortalidad.</li>
+            <li><strong>Manejo de tendencias no lineales:</strong> A diferencia de la regresión lineal, 
+                ARIMA puede capturar cambios en la tasa de cambio.</li>
+            <li><strong>Validación estadística:</strong> El orden (1,1,1) fue seleccionado mediante 
+                criterios AIC y BIC.</li>
+            <li><strong>Contexto de 19 puntos:</strong> Con 19 años de datos, ARIMA es más apropiado 
+                que modelos que requieren más información.</li>
+        </ol>
+        
+        <div class="box box-success">
+            <p><strong>Recomendación:</strong> Usar ARIMA para proyecciones de mediano plazo (2-3 años) 
+                y regresión lineal para escenarios de largo plazo (5+ años).</p>
+        </div>
+
+        <!-- ===== 17. INSIGHTS CLAVE ===== -->
+        <h1 id="insights">17. INSIGHTS CLAVE</h1>
+        
+        <div class="box box-info">
+            <h3>🔍 Insight 1: Mejora en Enfermedades Crónicas Tradicionales</h3>
+            <p>Las tasas de mortalidad por enfermedad cardíaca y cáncer han disminuido, reflejando 
+                avances en prevención y tratamiento.</p>
+        </div>
+        
+        <div class="box box-warning">
+            <h3>⚠️ Insight 2: Crisis de "Muertes por Desesperación"</h3>
+            <p>Las muertes por accidentes no intencionales y suicidios muestran tendencias crecientes, 
+                particularmente en comunidades desfavorecidas.</p>
+        </div>
+        
+        <div class="box box-danger">
+            <h3>🔴 Insight 3: Persistencia de Disparidades Geográficas</h3>
+            <p>La brecha entre {stats['estado_peor']} y {stats['estado_mejor']} no se ha reducido 
+                significativamente, indicando problemas estructurales persistentes.</p>
+        </div>
+        
+        <div class="box box-info">
+            <h3>📊 Insight 4: West Virginia como Paradigma</h3>
+            <p>West Virginia ejemplifica cómo la desindustrialización y la pobreza se traducen en 
+                resultados de mortalidad dramáticamente peores.</p>
+        </div>
+
+        <!-- ===== 18. LIMITACIONES ===== -->
+        <h1 id="limitaciones">18. LIMITACIONES DEL ESTUDIO</h1>
+        
+        <ul>
+            <li><strong>Período pre-pandemia:</strong> El análisis termina en 2017, por lo que no captura 
+                el impacto de COVID-19.</li>
+            <li><strong>Clasificación de causas:</strong> La codificación ICD-10 puede cambiar entre períodos, 
+                afectando la comparabilidad temporal.</li>
+            <li><strong>Poder predictivo limitado:</strong> Con solo 19 puntos de datos, los modelos ARIMA 
+                tienen poder predictivo limitado.</li>
+            <li><strong>Datos agregados:</strong> No disponemos de información sobre factores individuales 
+                (edad, raza, socioeconomía) en este dataset.</li>
+            <li><strong>Causalidad:</strong> El análisis es correlativo, no causal. No podemos atribuir 
+                cambios a políticas específicas sin análisis adicionales.</li>
+        </ul>
+
+        <!-- ===== 19. CONCLUSIONES ===== -->
+        <h1 id="conclusiones">19. CONCLUSIONES</h1>
+        
+        <p>
+            El análisis de mortalidad en Estados Unidos durante 1999-2017 revela un panorama epidemiológico 
+            complejo caracterizado por tres tendencias simultáneas:
+        </p>
+        
+        <h3>1. Mejora en Causas Crónicas Tradicionales</h3>
+        <p>
+            Enfermedades del corazón y cáncer muestran tendencias descendentes gracias a intervenciones 
+            preventivas. Este progreso, aunque real, es desigual.
+        </p>
+        
+        <h3>2. Emergencia de Nuevas Amenazas</h3>
+        <p>
+            Muertes por desesperación representan la contrapartida negativa: causas que crecen de forma 
+            sostenida con raíces socioeconómicas profundas.
+        </p>
+        
+        <h3>3. Persistencia de Desigualdades Regionales</h3>
+        <p>
+            La brecha entre estados con alta y baja mortalidad no se redujo de manera significativa. 
+            Las regiones del sur y los Apalaches permanecen en situación de alta vulnerabilidad.
+        </p>
+        
+        <div class="box box-info">
+            <p><strong>Recomendación Final:</strong> Las políticas de salud pública que ignoren las 
+                disparidades regionales y los determinantes sociales de la salud estarán condenadas a 
+                ser insuficientes. Se requiere un enfoque intersectorial que aborde las causas estructurales 
+                de la mortalidad.</p>
+        </div>
+
+        <!-- ===== 20. REFERENCIAS ===== -->
+        <h1 id="referencias">20. REFERENCIAS BIBLIOGRÁFICAS</h1>
+        
+        <div class="box box-ref">
+            <p><strong>CDC/NCHS. (2017).</strong> <em>National Vital Statistics System</em>. 
+                <a href="https://www.cdc.gov/nchs/nvss/" target="_blank">https://www.cdc.gov/nchs/nvss/</a></p>
+
+            <p><strong>Daugherty, J., Waltzman, D., Sarmiento, K., &amp; Xu, L. (2019).</strong> 
+                Traumatic Brain Injury–Related Deaths by Race/Ethnicity, Sex, Intent, and Mechanism of Injury — 
+                United States, 2000–2017. <em>MMWR. Morbidity and Mortality Weekly Report</em>, 68(46), 1050–1056. 
+                <a href="https://doi.org/10.15585/mmwr.mm6846a2" target="_blank">https://doi.org/10.15585/mmwr.mm6846a2</a></p>
+
+            <p><strong>James, W., Cossman, J., &amp; Wolf, J. K. (2018).</strong> 
+                Persistence of Death in the United States: The Remarkably Different Mortality Patterns 
+                Between America's Heartland and Dixieland. <em>Demographic Research</em>, 39, 897–910. 
+                <a href="https://doi.org/10.4054/DemRes.2018.39.33" target="_blank">https://doi.org/10.4054/DemRes.2018.39.33</a></p>
+
+            <p><strong>Shah, N. S., Lloyd-Jones, D. M., O'Flaherty, M., Capewell, S., Kershaw, K. N., 
+                Carnethon, M., &amp; Khan, S. S. (2019).</strong> Trends in Cardiometabolic Mortality in the 
+                United States, 1999–2017. <em>JAMA</em>, 322(8), 780–782. 
+                <a href="https://doi.org/10.1001/jama.2019.11245" target="_blank">https://doi.org/10.1001/jama.2019.11245</a></p>
+
+            <p><strong>Case, A., &amp; Deaton, A. (2020).</strong> <em>Deaths of Despair and the Future of Capitalism</em>. 
+                Princeton University Press.</p>
+        </div>
+
+        <footer>
+            <p>Análisis realizado con Python • Plotly • Scikit-learn • Statsmodels</p>
+            <p>© 2025 - Todos los derechos reservados</p>
+        </footer>
+
+    </div><!-- /main-content -->
+    
+</div><!-- /page-wrapper -->
+
+<script>
+// TOC scroll spy
+document.addEventListener('DOMContentLoaded', function() {{
+  const headings = document.querySelectorAll('h1[id], h2[id], h3[id]');
+  const links    = document.querySelectorAll('.sidebar-link');
+
+  function getActive() {{
+    let current = '';
+    headings.forEach(h => {{
+      if (window.scrollY >= h.offsetTop - 180) current = h.getAttribute('id');
+    }});
+    return current;
+  }}
+
+  function updateTOC() {{
+    const active = getActive();
+    links.forEach(a => {{
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + active) {{
+        a.classList.add('active');
+      }}
+    }});
+  }}
+
+  window.addEventListener('scroll', updateTOC, {{passive: true}});
+  updateTOC();
+}});
+</script>
+
+</body>
+</html>
