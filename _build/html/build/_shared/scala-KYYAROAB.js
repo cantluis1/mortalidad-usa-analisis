@@ -1,0 +1,1 @@
+import{a}from"/mortalidad-usa-analisis/build/_shared/chunk-5WQWRSDK.js";import"/mortalidad-usa-analisis/build/_shared/chunk-2HVDTW4E.js";import"/mortalidad-usa-analisis/build/_shared/chunk-OZE3FFNP.js";export default a();

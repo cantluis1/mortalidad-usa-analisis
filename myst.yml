@@ -1,0 +1,33 @@
+version: 1
+project:
+  id: 52f68b69-73bf-4bac-a902-e2e1e44d89f8
+  title: Análisis Temporal y Demográfico de las Principales Causas de Muerte en EE.UU.
+  description: Análisis de mortalidad en Estados Unidos 1999-2017
+  keywords: [mortalidad, epidemiología, EE.UU., análisis de datos]
+  authors:
+    - name: Valerie M
+    - name: Luis C
+  github: https://github.com/cantluis1/mortalidad-usa-analisis
+  toc:
+    - file: intro.ipynb
+    - file: marco_teorico.ipynb
+    - file: metodologia.ipynb
+    - file: evolucion_tasa.ipynb
+    - file: analisis_ranking.ipynb
+    - file: muertes_desesperacion.ipynb
+    - file: distribucion_causas.ipynb
+    - file: series_tiempo.ipynb
+    - file: west_virginia.ipynb
+    - file: clustering.ipynb
+    - file: modelo_arima.ipynb
+    - file: modelos_adicionales.ipynb
+    - file: modelo_ets.ipynb
+    - file: modelo_regresion.ipynb
+    - file: comparacion_modelos.ipynb
+    - file: justificacion.ipynb
+    - file: insights.ipynb
+    - file: limitaciones.ipynb
+    - file: conclusiones.ipynb
+    - file: referencias.ipynb
+site:
+  template: book-theme
