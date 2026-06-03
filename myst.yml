@@ -18,7 +18,6 @@ project:
     - file: distribucion_causas.ipynb
     - file: series_tiempo.ipynb
     - file: west_virginia.ipynb
-    - file: clustering.ipynb
     - file: modelo_arima.ipynb
     - file: modelos_adicionales.ipynb
     - file: modelo_ets.ipynb
